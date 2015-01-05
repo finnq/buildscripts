@@ -3,7 +3,6 @@
 CMD="$1"
 EXTRACMD="$2"
 A_TOP=${PWD}
-CUR_DIR=`dirname $0`
 DATE=$(date +%D)
 MACHINE_TYPE=`uname -m`
 CM_VERSION=12.0
@@ -271,24 +270,24 @@ case "$CMD" in
 esac
 
 # create env.sh if it doesn't exist
-if [ ! -f $CUR_DIR/env.sh ]; then
+if [ ! -f env.sh ]; then
     echo "export USE_CCACHE=1" > env.sh
 fi
 
 # create empty patches.txt if it doesn't exist
-if [ ! -f $CUR_DIR/patches.txt ]; then
+if [ ! -f patches.txt ]; then
     touch patches.txt
 fi
 
 # Apply gerrit changes from patches.txt. One change-id per line!
-if [ -f $CUR_DIR/patches.txt ]; then
+if [ -f patches.txt ]; then
     while read line; do    
         GERRIT_CHANGES+="$line "    
     done < patches.txt
 
     if [[ ! -z ${GERRIT_CHANGES} && ! ${GERRIT_CHANGES} == " " ]]; then
         echo -e "${txtylw}Applying patches...${txtrst}"
-        python $CUR_DIR/build/tools/repopick.py $GERRIT_CHANGES --ignore-missing --start-branch auto --abandon-first
+        python build/tools/repopick.py $GERRIT_CHANGES --ignore-missing --start-branch auto --abandon-first
         echo -e "${txtgrn}Patches applied!${txtrst}"
     fi
 fi
@@ -299,8 +298,8 @@ echo -e "${txtgrn}Setting up Build Environment...${txtrst}"
 lunch ${lunch}
 
 # Allow setting of additional flags
-if [ -f $CUR_DIR/env.sh ]; then
-    source $CUR_DIR/env.sh
+if [ -f env.sh ]; then
+    source env.sh
 fi
 
 # fix module copy for archlinux
@@ -358,6 +357,6 @@ printf "${txtgrn}Elapsed: "
 printf "%d sec(s)\n ${txtrst}" $E_SEC
 
 # Postbuild script for uploading builds
-if [ -f $CUR_DIR/postbuild.sh ]; then
-    source $CUR_DIR/postbuild.sh
+if [ -f postbuild.sh ]; then
+    source postbuild.sh
 fi
