@@ -43,18 +43,11 @@ check_machine_type() {
         echo -e "\r\n ${txtrst}"
     else
         echo -e "${txtred}Detected: ${MACHINE_TYPE}. Bad!"
-        echo -e "${txtred}Sorry, we do only support building on 64-bit machines."
+        echo -e "${txtred}Sorry, I do only support building on 64-bit machines."
         echo -e "${txtred}32-bit is soooo 1970, consider a upgrade. ;-)"
         echo -e "\r\n ${txtrst}"
         exit
     fi
-}
-
-install_sun_jdk()
-{
-    add-apt-repository "deb http://archive.canonical.com/ lucid partner"
-    apt-get update
-    apt-get install sun-java6-jdk
 }
 
 install_arch_packages()
@@ -66,69 +59,23 @@ install_arch_packages()
     gcc-libs-multilib gcc-multilib lib32-gcc-libs binutils-multilib libtool-multilib
 }
 
-install_ubuntu_packages()
-{
-    # x86_64       
-    apt-get install git-core gnupg flex bison gperf build-essential \
-    zip curl libc6-dev libncurses5-dev:i386 x11proto-core-dev \
-    libx11-dev:i386 libreadline6-dev:i386 libgl1-mesa-glx:i386 \
-    libgl1-mesa-dev g++-multilib mingw32 openjdk-6-jdk tofrodos \
-    python-markdown libxml2-utils xsltproc zlib1g-dev:i386 pngcrush
-}
-
 prepare_environment()
 {
     echo "Which 64-bit distribution are you running?"
-    echo "1) Ubuntu 11.04"
-    echo "2) Ubuntu 11.10"
-    echo "3) Ubuntu 12.04"
-    echo "4) Ubuntu 12.10"
-    echo "5) Arch Linux"
-    echo "6) Debian"
+    echo "1) Arch Linux"
+    echo "2) Debian"
     read -n1 distribution
     echo -e "\r\n"
 
     case $distribution in
     "1")
-        # Ubuntu 11.04
-        echo "Installing packages for Ubuntu 11.04"
-        install_sun_jdk
-        apt-get install git-core gnupg flex bison gperf build-essential \
-        zip curl zlib1g-dev libc6-dev lib32ncurses5-dev ia32-libs \
-        x11proto-core-dev libx11-dev lib32readline5-dev lib32z-dev \
-        libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown \
-        libxml2-utils xsltproc libx11-dev:i386
-        ;;
-    "2")
-        # Ubuntu 11.10
-        echo "Installing packages for Ubuntu 11.10"
-        install_sun_jdk
-        apt-get install git-core gnupg flex bison gperf build-essential \
-        zip curl zlib1g-dev libc6-dev lib32ncurses5-dev ia32-libs \
-        x11proto-core-dev libx11-dev lib32readline5-dev lib32z-dev \
-        libgl1-mesa-dev g++-multilib mingw32 tofrodos python-markdown \
-        libxml2-utils xsltproc libx11-dev:i386
-        ;;
-    "3")
-        # Ubuntu 12.04
-        echo "Installing packages for Ubuntu 12.04"
-        install_ubuntu_packages
-        ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so
-        ;;
-    "4")
-        # Ubuntu 12.10
-        echo "Installing packages for Ubuntu 12.10"
-        install_ubuntu_packages
-        ln -s /usr/lib/i386-linux-gnu/mesa/libGL.so.1 /usr/lib/i386-linux-gnu/libGL.so
-        ;;
-    "5")
         # Arch Linux
         echo "Installing packages for Arch Linux"
         install_arch_packages
         mv /usr/bin/python /usr/bin/python.bak
         ln -s /usr/bin/python2 /usr/bin/python
         ;;
-    "6")
+    "2")
         # Debian
         echo "Installing packages for Debian"
         apt-get update
@@ -155,49 +102,24 @@ prepare_environment()
         ;;
     esac
     
-    echo "Do you want us to get android sources for you? (y/n)"
+    echo "Do you want me to get android sources for you? (y/n)"
     read -n1 sources
     echo -e "\r\n"
 
     case $sources in
     "Y" | "y")
         echo "Choose a branch:"
-        echo "1) cm-7 (gingerbread)"
-        echo "2) cm-9 (ics)"
-        echo "3) cm-10 (jellybean mr0)"
-        echo "4) cm-10.1 (jellybean mr1)"
-        echo "5) cm-10.2 (jellybean mr2)"
-        echo "6) cm-11.0 (kitkat)"
-        echo "7) cm-12.0 (lollipop)"
+        echo "1) cm-11.0 (kitkat)"
+        echo "2) cm-12.0 (lollipop)"
         read -n1 branch
         echo -e "\r\n"
 
         case $branch in
             "1")
-                # cm-7
-                branch="gingerbread"
-                ;;
-            "2")
-                # cm-9
-                branch="ics"
-                ;;
-            "3")
-                # cm-10
-                branch="jellybean"
-                ;;
-            "4")
-                # cm-10.1
-                branch="cm-10.1"
-                ;;
-            "5")
-                # cm-10.2
-                branch="cm-10.2"
-                ;;
-            "6")
                 # cm-11.0
                 branch="cm-11.0"
                 ;;
-            "7")
+            "2")
                 # cm-12.0
                 branch="cm-12.0"
                 ;;
@@ -209,18 +131,16 @@ prepare_environment()
                 ;;
         esac
 
-        echo "Target Directory (~/android/system):"
+        echo "Target Directory (~/android/CyanogenMod):"
         read working_directory
 
         if [ ! -n $working_directory ]; then 
-            working_directory="~/android/system"
+            working_directory="~/android/CyanogenMod"
         fi
 
         echo "Installing to $working_directory"
-        mkdir ~/bin
-        export PATH=~/bin:$PATH
-        curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > ~/bin/repo
-        chmod a+x ~/bin/repo
+        curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > /usr/local/bin/repo
+        chmod a+x /usr/local/bin/repo
         source ~/.profile
         repo selfupdate
         
@@ -228,8 +148,8 @@ prepare_environment()
         cd $working_directory
         repo init -u git://github.com/CyanogenMod/android.git -b $branch
         mkdir -p $working_directory/.repo/local_manifests
-        touch $working_directory/.repo/local_manifests/my_manifest.xml
-        curl https://raw.github.com/codeworkx/buildscripts/$branch/my_manifest.xml > $working_directory/.repo/local_manifests/my_manifest.xml
+        touch $working_directory/.repo/local_manifests/buildscripts.xml
+        curl https://raw.github.com/finnq/buildscripts/$branch/buildscripts.xml > $working_directory/.repo/local_manifests/buildscripts.xml
         repo sync -j15
         echo "Sources synced to $working_directory"        
         exit
@@ -316,10 +236,10 @@ echo -e "\r\n ${txtrst}"
 # Check for build target
 if [ -z "${CMD}" ]; then
 	echo -e "${txtred}No build target set."
-	echo -e "${txtred}Usage: ./build.sh mako (complete build)"
-	echo -e "${txtred}       ./build.sh mako kernel (bootimage only)"
-	echo -e "${txtred}       ./build.sh clean (make clean)"
-    echo -e "${txtred}       ./build.sh clobber (make clober, wipes entire out/ directory)"
+	echo -e "${txtred}Usage: ./build.sh hammerhead (complete build)"
+	echo -e "${txtred}       ./build.sh hammerhead kernel (bootimage only)"
+	echo -e "${txtred}       ./build.sh clean (make clean, wipes entire out/ directory)"
+    echo -e "${txtred}       ./build.sh clobber (make clober, wipes entire out/ directory, same as clean)"
     echo -e "${txtred}       ./build.sh prepare (prepares the build environment)"
     echo -e "\r\n ${txtrst}"
     exit
@@ -338,7 +258,6 @@ case "$CMD" in
         ;;
     clean)
         make clean
-        rm -rf ./out/target/product
         exit
         ;;
     clobber)
