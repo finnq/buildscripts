@@ -247,6 +247,18 @@ fi
 # Starting Timer
 START=$(date +%s)
 
+case "$EXTRACMD" in
+    eng)
+		BUILD_TYPE=eng
+		;;
+    userdebug)
+		BUILD_TYPE=userdebug
+		;;
+    *)
+		BUILD_TYPE=eng
+		;;
+esac
+
 # Device specific settings
 case "$CMD" in
     prepare)
@@ -264,7 +276,7 @@ case "$CMD" in
         exit
         ;;
     *)
-        lunch=cm_${CMD}-userdebug
+        lunch=cm_${CMD}-${BUILD_TYPE}
         brunch=${lunch}
         ;;
 esac
