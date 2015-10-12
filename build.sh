@@ -5,7 +5,7 @@ EXTRACMD="$2"
 A_TOP=${PWD}
 DATE=$(date +%D)
 MACHINE_TYPE=`uname -m`
-CM_VERSION=12.0
+CM_VERSION=13.0
 
 # Common defines (Arch-dependent)
 case `uname -s` in
@@ -108,19 +108,14 @@ prepare_environment()
     case $sources in
     "Y" | "y")
         echo "Choose a branch:"
-        echo "1) cm-11.0 (kitkat)"
-        echo "2) cm-12.0 (lollipop)"
+        echo "1) cm-13.0 (marshmallow)"
         read -n1 branch
         echo -e "\r\n"
 
         case $branch in
             "1")
-                # cm-11.0
-                branch="cm-11.0"
-                ;;
-            "2")
-                # cm-12.0
-                branch="cm-12.0"
+                # cm-13.0
+                branch="cm-13.0"
                 ;;
             *)
                 # no branch
@@ -283,7 +278,10 @@ esac
 
 # create env.sh if it doesn't exist
 if [ ! -f env.sh ]; then
+    # Enable ccache
     echo "export USE_CCACHE=1" > env.sh
+    # Fix for Archlinux
+    echo "export LC_ALL=C" > env.sh
 fi
 
 # create empty patches.txt if it doesn't exist
