@@ -291,7 +291,8 @@ fi
 
 # Apply gerrit changes from patches.txt. One change-id per line!
 if [ -f patches.txt ]; then
-    while read line; do    
+    while read line; do
+        line=$(sed 's/\s\?#.*$//g' <<< $line)
         GERRIT_CHANGES+="$line "    
     done < patches.txt
 
@@ -299,6 +300,8 @@ if [ -f patches.txt ]; then
         echo -e "${txtylw}Applying patches...${txtrst}"
         python build/tools/repopick.py $GERRIT_CHANGES --ignore-missing --start-branch auto --abandon-first
         echo -e "${txtgrn}Patches applied!${txtrst}"
+        read -p "Press any key to continue... " -n1 -s
+        echo
     fi
 fi
 
