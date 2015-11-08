@@ -279,20 +279,47 @@ if [ ! -f patches.txt ]; then
     touch patches.txt
 fi
 
-# Apply gerrit changes from patches.txt. One change-id per line!
+# Apply changes from patches.txt.
+#   Gerrit: one change-id per line
+#   Local: local vendor/cm 0001-disable-security.patch
 if [ -f patches.txt ]; then
+    declare -a LOCAL_CHANGES
+
+    gerrit_re='^[0-9]+'
+
+    # Read patch data
     while read line; do
-        line=$(sed 's/\s\?#.*$//g' <<< $line)
-        GERRIT_CHANGES+="$line "    
+        if [[ $line == local* ]]; then
+            IFS=' ' read -a patchdata <<< "$line"
+            LOCAL_CHANGES=("${LOCAL_CHANGES[@]}" "${patchdata[1]} ${patchdata[2]}")
+        elif [[ $line =~ $gerrit_re ]]; then
+            line=$(sed 's/\s\?#.*$//g' <<< $line)
+            GERRIT_CHANGES+="$line "
+        fi
     done < patches.txt
 
+    # Apply gerrit changes
     if [[ ! -z ${GERRIT_CHANGES} && ! ${GERRIT_CHANGES} == " " ]]; then
-        echo -e "${txtylw}Applying patches...${txtrst}"
+        echo -e "${txtylw}Applying gerrit patches...${txtrst}"
         python vendor/cm/build/tools/repopick.py $GERRIT_CHANGES --ignore-missing --start-branch auto --abandon-first
-        echo -e "${txtgrn}Patches applied!${txtrst}"
-        read -p "Press any key to continue... " -n1 -s
-        echo
+        echo -e "${txtgrn}Patches from gerrit applied!${txtrst}"
     fi
+
+    # Apply local changes
+    if [[ ! -z ${LOCAL_CHANGES} && ! ${LOCAL_CHANGES} == " " ]]; then
+        echo -e "${txtylw}Applying local patches...${txtrst}"
+        for line in "${LOCAL_CHANGES[@]}"
+        do
+            IFS=' ' read -a patchdata <<< "$line"
+            echo -e "${txtblu}Patch: ${patchdata[1]} ${txtrst}"
+            echo -e "${txtblu}Target: ${patchdata[0]} ${txtrst}"
+            git apply --directory=${patchdata[0]} ${patchdata[1]}
+        done
+        echo -e "${txtgrn}Patches from local applied!${txtrst}"
+    fi
+
+    read -p "Press any key to continue... " -n1 -s
+    echo
 fi
 
 # Setting up Build Environment
