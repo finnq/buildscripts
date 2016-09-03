@@ -5,7 +5,7 @@ EXTRACMD="$2"
 A_TOP=${PWD}
 DATE=$(date +%D)
 MACHINE_TYPE=`uname -m`
-CM_VERSION=13.0
+CM_VERSION=14.0
 
 # Common defines (Arch-dependent)
 case `uname -s` in
@@ -55,7 +55,7 @@ install_arch_packages()
     pacman -S jdk7-openjdk jre7-openjdk jre7-openjdk-headless perl git gnupg flex bison gperf zip unzip lzop sdl wxgtk \
     squashfs-tools ncurses libpng zlib libusb libusb-compat readline schedtool \
     optipng python2 perl-switch lib32-zlib lib32-ncurses lib32-readline \
-    gcc-libs-multilib gcc-multilib lib32-gcc-libs binutils-multilib libtool-multilib
+    gcc-libs-multilib gcc-multilib lib32-gcc-libs binutils libtool-multilib
 }
 
 prepare_environment()
@@ -108,14 +108,14 @@ prepare_environment()
     case $sources in
     "Y" | "y")
         echo "Choose a branch:"
-        echo "1) cm-13.0 (marshmallow)"
+        echo "1) cm-14.0 (nougat)"
         read -n1 branch
         echo -e "\r\n"
 
         case $branch in
             "1")
-                # cm-13.0
-                branch="cm-13.0"
+                # cm-14.0
+                branch="staging/cm-14.0"
                 ;;
             *)
                 # no branch
@@ -133,14 +133,14 @@ prepare_environment()
         fi
 
         echo "Installing to $working_directory"
-        curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > /usr/local/bin/repo
+        curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo
         chmod a+x /usr/local/bin/repo
         source ~/.profile
-        repo selfupdate
         
         mkdir -p $working_directory
         cd $working_directory
         repo init -u git://github.com/CyanogenMod/android.git -b $branch
+        repo selfupdate
         mkdir -p $working_directory/.repo/local_manifests
         touch $working_directory/.repo/local_manifests/buildscripts.xml
         curl https://raw.github.com/finnq/buildscripts/$branch/buildscripts.xml > $working_directory/.repo/local_manifests/buildscripts.xml
