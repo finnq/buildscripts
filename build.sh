@@ -55,7 +55,7 @@ install_arch_packages()
     pacman -S jdk7-openjdk jre7-openjdk jre7-openjdk-headless perl git gnupg flex bison gperf zip unzip lzop sdl wxgtk \
     squashfs-tools ncurses libpng zlib libusb libusb-compat readline schedtool \
     optipng python2 perl-switch lib32-zlib lib32-ncurses lib32-readline \
-    gcc-libs-multilib gcc-multilib lib32-gcc-libs binutils-multilib libtool-multilib
+    gcc-libs-multilib gcc-multilib lib32-gcc-libs binutils libtool-multilib
 }
 
 prepare_environment()
@@ -133,14 +133,14 @@ prepare_environment()
         fi
 
         echo "Installing to $working_directory"
-        curl https://dl-ssl.google.com/dl/googlesource/git-repo/repo > /usr/local/bin/repo
+        curl https://storage.googleapis.com/git-repo-downloads/repo > /usr/local/bin/repo
         chmod a+x /usr/local/bin/repo
         source ~/.profile
-        repo selfupdate
         
         mkdir -p $working_directory
         cd $working_directory
         repo init -u git://github.com/CyanogenMod/android.git -b $branch
+        repo selfupdate
         mkdir -p $working_directory/.repo/local_manifests
         touch $working_directory/.repo/local_manifests/buildscripts.xml
         curl https://raw.github.com/finnq/buildscripts/$branch/buildscripts.xml > $working_directory/.repo/local_manifests/buildscripts.xml
