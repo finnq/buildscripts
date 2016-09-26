@@ -298,7 +298,7 @@ if [ -f patches.txt ]; then
 
     if [[ ! -z ${GERRIT_CHANGES} && ! ${GERRIT_CHANGES} == " " ]]; then
         echo -e "${txtylw}Applying patches...${txtrst}"
-        python build/tools/repopick.py $GERRIT_CHANGES --ignore-missing --start-branch auto --abandon-first
+        python vendor/cm/build/tools/repopick.py $GERRIT_CHANGES --ignore-missing --start-branch auto --abandon-first
         echo -e "${txtgrn}Patches applied!${txtrst}"
         read -p "Press any key to continue... " -n1 -s
         echo
