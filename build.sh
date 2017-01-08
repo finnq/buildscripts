@@ -5,7 +5,7 @@ EXTRACMD="$2"
 A_TOP=${PWD}
 DATE=$(date +%D)
 MACHINE_TYPE=`uname -m`
-CM_VERSION=14.0
+LAOS_VERSION=14.1
 
 # Common defines (Arch-dependent)
 case `uname -s` in
@@ -108,14 +108,14 @@ prepare_environment()
     case $sources in
     "Y" | "y")
         echo "Choose a branch:"
-        echo "1) cm-14.0 (nougat)"
+        echo "1) cm-14.1 (nougat)"
         read -n1 branch
         echo -e "\r\n"
 
         case $branch in
             "1")
-                # cm-14.0
-                branch="staging/cm-14.0"
+                # cm-14.1
+                branch="cm-14.1"
                 ;;
             *)
                 # no branch
@@ -125,11 +125,11 @@ prepare_environment()
                 ;;
         esac
 
-        echo "Target Directory (~/android/CyanogenMod):"
+        echo "Target Directory (~/android/LineageOS):"
         read working_directory
 
         if [ ! -n $working_directory ]; then 
-            working_directory="~/android/CyanogenMod"
+            working_directory="~/android/LineageOS"
         fi
 
         echo "Installing to $working_directory"
@@ -139,7 +139,7 @@ prepare_environment()
         
         mkdir -p $working_directory
         cd $working_directory
-        repo init -u git://github.com/CyanogenMod/android.git -b $branch
+        repo init -u git://github.com/LineageOS/android.git -b $branch
         repo selfupdate
         mkdir -p $working_directory/.repo/local_manifests
         touch $working_directory/.repo/local_manifests/buildscripts.xml
@@ -163,11 +163,11 @@ create_kernel_zip()
         echo -e "${txtgrn}Bootimage found...${txtrst}"
         if [ -e ${A_TOP}/buildscripts/targets/${CMD}/kernel_updater-script ]; then
 
-            echo -e "${txtylw}Package KERNELUPDATE:${txtrst} out/target/product/${CMD}/kernel-cm-${CM_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip"
+            echo -e "${txtylw}Package KERNELUPDATE:${txtrst} out/target/product/${CMD}/kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip"
             cd ${ANDROID_PRODUCT_OUT}
 
             rm -rf kernel_zip
-            rm kernel-cm-${CM_VERSION}-*
+            rm kernel-lineage-${LAOS_VERSION}-*
 
             mkdir -p kernel_zip/system/lib/modules
             mkdir -p kernel_zip/META-INF/com/google/android
@@ -183,17 +183,17 @@ create_kernel_zip()
                 
             echo "Zipping package..."
             cd kernel_zip
-            zip -qr ../kernel-cm-${CM_VERSION}-$(date +%Y%m%d)-${CMD}.zip ./
+            zip -qr ../kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}.zip ./
             cd ${ANDROID_PRODUCT_OUT}
 
             echo "Signing package..."
-            java -jar ${ANDROID_HOST_OUT}/framework/signapk.jar ${A_TOP}/build/target/product/security/testkey.x509.pem ${A_TOP}/build/target/product/security/testkey.pk8 kernel-cm-${CM_VERSION}-$(date +%Y%m%d)-${CMD}.zip kernel-cm-${CM_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
-            rm kernel-cm-${CM_VERSION}-$(date +%Y%m%d)-${CMD}.zip
-            echo -e "${txtgrn}Package complete:${txtrst} out/target/product/${CMD}/kernel-cm-${CM_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip"
-            md5sum kernel-cm-${CM_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
+            java -jar ${ANDROID_HOST_OUT}/framework/signapk.jar ${A_TOP}/build/target/product/security/testkey.x509.pem ${A_TOP}/build/target/product/security/testkey.pk8 kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}.zip kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
+            rm kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}.zip
+            echo -e "${txtgrn}Package complete:${txtrst} out/target/product/${CMD}/kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip"
+            md5sum kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
             cd ${A_TOP}
         else
-            echo -e "${txtred}No instructions to create out/target/product/${CMD}/kernel-cm-${CM_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip... skipping."
+            echo -e "${txtred}No instructions to create out/target/product/${CMD}/kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip... skipping."
             echo -e "\r\n ${txtrst}"
         fi
     else
@@ -202,29 +202,19 @@ create_kernel_zip()
     fi
 }
 
-echo -e "${txtblu} #####################################################################"
-echo -e "${txtblu} \r\n"                                                   
-echo -e "${txtblu}                CCCCCCCCCCCCC MMMMMMMM               MMMMMMMM "
-echo -e "${txtblu}             CCC::::::::::::C M:::::::M             M:::::::M "
-echo -e "${txtblu}           CC:::::::::::::::C M::::::::M           M::::::::M "
-echo -e "${txtblu}          C:::::CCCCCCCC::::C M:::::::::M         M:::::::::M "
-echo -e "${txtblu}         C:::::C       CCCCCC M::::::::::M       M::::::::::M "
-echo -e "${txtblu}        C:::::C               M:::::::::::M     M:::::::::::M "
-echo -e "${txtblu}        C:::::C               M:::::::M::::M   M::::M:::::::M "
-echo -e "${txtblu}        C:::::C               M::::::M M::::M M::::M M::::::M "
-echo -e "${txtblu}        C:::::C               M::::::M  M::::M::::M  M::::::M "
-echo -e "${txtblu}        C:::::C               M::::::M   M:::::::M   M::::::M "
-echo -e "${txtblu}        C:::::C               M::::::M    M:::::M    M::::::M "
-echo -e "${txtblu}         C:::::C       CCCCCC M::::::M     MMMMM     M::::::M "
-echo -e "${txtblu}          C:::::CCCCCCCC::::C M::::::M               M::::::M "
-echo -e "${txtblu}           CC:::::::::::::::C M::::::M               M::::::M "
-echo -e "${txtblu}             CCC::::::::::::C M::::::M               M::::::M "
-echo -e "${txtblu}                CCCCCCCCCCCCC MMMMMMMM               MMMMMMMM "
+echo -e "${txtblu} #################################################"
 echo -e "${txtblu} \r\n"
-echo -e "${txtblu}                     CyanogenMod ${CM_VERSION} buildscript"
-echo -e "${txtblu}                visit us @ http://www.cyanogenmod.org"
+echo -e "${txtblu}         ██╗      █████╗  ██████╗ ███████╗ "
+echo -e "${txtblu}         ██║     ██╔══██╗██╔═══██╗██╔════╝ "
+echo -e "${txtblu}         ██║     ███████║██║   ██║███████╗ "
+echo -e "${txtblu}         ██║     ██╔══██║██║   ██║╚════██║ "
+echo -e "${txtblu}         ███████╗██║  ██║╚██████╔╝███████║ "
+echo -e "${txtblu}         ╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝ "
 echo -e "${txtblu} \r\n"
-echo -e "${txtblu} #####################################################################"
+echo -e "${txtblu}  LineageOS ${LAOS_VERSION} buildscript"
+echo -e "${txtblu}      visit us @ http://www.lineageos.org"
+echo -e "${txtblu} \r\n"
+echo -e "${txtblu} #################################################"
 echo -e "\r\n ${txtrst}"
 
 # Check for build target
@@ -271,7 +261,7 @@ case "$CMD" in
         exit
         ;;
     *)
-        lunch=cm_${CMD}-${BUILD_TYPE}
+        lunch=lineage_${CMD}-${BUILD_TYPE}
         brunch=${lunch}
         ;;
 esac
