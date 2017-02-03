@@ -187,7 +187,7 @@ create_kernel_zip()
             cd ${ANDROID_PRODUCT_OUT}
 
             echo "Signing package..."
-            java -jar ${ANDROID_HOST_OUT}/framework/signapk.jar ${A_TOP}/build/target/product/security/testkey.x509.pem ${A_TOP}/build/target/product/security/testkey.pk8 kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}.zip kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
+            java -Djava.library.path=${ANDROID_HOST_OUT}/lib64/ -jar ${ANDROID_HOST_OUT}/framework/signapk.jar ${A_TOP}/build/target/product/security/testkey.x509.pem ${A_TOP}/build/target/product/security/testkey.pk8 kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}.zip kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
             rm kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}.zip
             echo -e "${txtgrn}Package complete:${txtrst} out/target/product/${CMD}/kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip"
             md5sum kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
