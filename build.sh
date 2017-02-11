@@ -332,13 +332,6 @@ if [ -f env.sh ]; then
     source env.sh
 fi
 
-# fix module copy for archlinux
-mkdir -p ${ANDROID_PRODUCT_OUT}/system/lib
-mkdir -p ${ANDROID_PRODUCT_OUT}/system/usr
-cd ${ANDROID_PRODUCT_OUT}/system/usr
-ln -sf ../lib .
-cd -
-
 # Start the Build
 case "$EXTRACMD" in
     kernel)
