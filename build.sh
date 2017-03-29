@@ -187,7 +187,11 @@ create_kernel_zip()
             cd ${ANDROID_PRODUCT_OUT}
 
             echo "Signing package..."
-            java -Djava.library.path=${ANDROID_HOST_OUT}/lib64/ -jar ${ANDROID_HOST_OUT}/framework/signapk.jar ${A_TOP}/build/target/product/security/testkey.x509.pem ${A_TOP}/build/target/product/security/testkey.pk8 kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}.zip kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
+            if [ "${ASIGN}" -eq "1" ]; then
+                java -Djava.library.path=${ANDROID_HOST_OUT}/lib64/ -jar ${ANDROID_HOST_OUT}/framework/signapk.jar ${ACERTPATH}/releasekey.x509.pem ${ACERTPATH}/releasekey.pk8 kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}.zip kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
+            else
+                java -Djava.library.path=${ANDROID_HOST_OUT}/lib64/ -jar ${ANDROID_HOST_OUT}/framework/signapk.jar ${A_TOP}/build/target/product/security/testkey.x509.pem ${A_TOP}/build/target/product/security/testkey.pk8 kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}.zip kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
+            fi
             rm kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}.zip
             echo -e "${txtgrn}Package complete:${txtrst} out/target/product/${CMD}/kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip"
             md5sum kernel-lineage-${LAOS_VERSION}-$(date +%Y%m%d)-${CMD}-signed.zip
@@ -366,7 +370,16 @@ case "$EXTRACMD" in
         ;;
     *)
         echo -e "${txtgrn}Building Android...${txtrst}"
-        brunch ${brunch}
+        if [ "${ASIGN}" -eq "1" ]; then
+            rm out/dist/*-target_files-*.zip
+            mka target-files-package dist
+            mkdir -p out/signed
+            ./build/tools/releasetools/sign_target_files_apks -o -d ${ACERTPATH} out/dist/*-target_files-*.zip out/signed/signed-target_files.zip
+            LINEAGE_VERSION=$(fgrep ro.cm.version ${ANDROID_PRODUCT_OUT}/system/build.prop | cut -d "=" -f 2)
+            ./build/tools/releasetools/ota_from_target_files -k ${ACERTPATH}/releasekey --block --backup=true out/signed/signed-target_files.zip out/signed/lineage-${LINEAGE_VERSION}-signed.zip
+        else
+            brunch ${brunch}
+        fi
         create_kernel_zip
         ;;
 esac
