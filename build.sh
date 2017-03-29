@@ -317,7 +317,7 @@ if [ -f patches.txt ]; then
             IFS=' ' read -a patchdata <<< "$line"
             echo -e "${txtblu}Patch: ${patchdata[1]} ${txtrst}"
             echo -e "${txtblu}Target: ${patchdata[0]} ${txtrst}"
-            git apply --directory=${patchdata[0]} ${patchdata[1]}
+            git --git-dir=${patchdata[0]}/.git --work-tree=${patchdata[0]} am < ${patchdata[1]}
         done
         echo -e "${txtgrn}Patches from local applied!${txtrst}"
     fi
